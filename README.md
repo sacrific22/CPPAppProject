@@ -72,10 +72,6 @@
 
 ###
 
-<img align="left" height="200" src="https://github.com/sacrific22/CPPAppProject/blob/main/assets/bg.png"  />
-
-###
-
 <img align="left" height="200" src="https://github.com/sacrific22/CPPAppProject/blob/main/assets/bgMain.png"  />
 
 ###
@@ -96,9 +92,7 @@
 
 ###
 
-<br clear="both">
-
-<img align="left" height="200" src="https://github.com/sacrific22/CPPAppProject/blob/main/assets/cherry.png"  />
+<img align="left" height="200" src="https://github.com/sacrific22/CPPAppProject/blob/main/assets/bg.png"  />
 
 ###
 
@@ -111,6 +105,30 @@
 ###
 
 <img align="left" height="200" src="https://github.com/sacrific22/CPPAppProject/blob/main/assets/skin3.png"  />
+
+###
+
+<br clear="both">
+
+<img align="left" height="200" src="https://github.com/sacrific22/CPPAppProject/blob/main/assets/cherry.png"  />
+
+###
+
+<br clear="both">
+
+<h3 align="left">Sizes of images:</h3>
+
+###
+
+<p align="left">32x32 for charachter skins<br>16x16 for fruits<br>800x600 for background</p>
+
+###
+
+<h3 align="left">Formats of files:</h3>
+
+###
+
+<p align="left">For Music:<br>Wav (Mp3 not supported :( )<br>For sprites, skins and background:<br>png or jpg(jpeg) (choose on your own)</p>
 
 ###
 
