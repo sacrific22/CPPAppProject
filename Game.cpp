@@ -11,7 +11,7 @@ struct Fruit {
     int speed;
 };
 
-bool runGame(SDL_Renderer* renderer, TTF_Font* font, SDL_Texture* skinTexture,float brightness) {
+bool runGame(SDL_Renderer* renderer, TTF_Font* font, SDL_Texture* skinTexture) {
     // Загружаем фон игры
     SDL_Texture* bgTexture = IMG_LoadTexture(renderer, "assets/gamebg.png");
 
@@ -149,12 +149,6 @@ bool runGame(SDL_Renderer* renderer, TTF_Font* font, SDL_Texture* skinTexture,fl
             SDL_FreeSurface(surf);
             SDL_DestroyTexture(txt);
         }
-        // Brightness effect overlay ( darkening all scenes )
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        Uint8 overlay = static_cast<Uint8>((1.0f - brightness) * 255);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, overlay);
-        SDL_Rect screenRect{ 0, 0, 800, 600 };
-        SDL_RenderFillRect(renderer, &screenRect);
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);

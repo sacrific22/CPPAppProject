@@ -56,8 +56,6 @@ void drawButton(SDL_Renderer* renderer, TTF_Font* font, const std::string& text,
 }
 
 int main(int argc, char* argv[]) {
-    
-    float volume = 1.0f; // громкость от 0.0 до 1.0
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL error: " << SDL_GetError() << std::endl;
         return -1;
@@ -93,7 +91,7 @@ int main(int argc, char* argv[]) {
     engine->play2D("assets/bgMusic.wav", true); // true = зациклено
 
     // Фон меню
-    SDL_Texture* bgTexture = IMG_LoadTexture(renderer, "assets/bgMain.png");
+    SDL_Texture* bgTexture = IMG_LoadTexture(renderer, "assets/bg.png");
 
     GameState state = GameState::MENU;
     std::vector<std::string> menuItems = { "Play", "Settings", "Exit" };
@@ -108,10 +106,10 @@ int main(int argc, char* argv[]) {
         "assets/skin3.png"
     };
     std::vector<std::string> skinNames = {
-        "Mini Me",
-        "White-shirt guy",
-        "Body-Builder",
-        "CAU Fan"
+        "Peasant Boris",
+        "Mage Adnan",
+        "Warrior Ulugbek",
+        "Cleric GPT"
     };
     std::vector<SDL_Texture*> skinTextures;
     for (const auto& s : skinFiles) {
@@ -142,24 +140,12 @@ int main(int argc, char* argv[]) {
                     break;
 
                 case GameState::SETTINGS:
-                    if (sc == SDL_SCANCODE_LEFT)
-                        brightness = std::clamp(brightness - 0.1f, 0.f, 1.f);
-                    else if (sc == SDL_SCANCODE_RIGHT)
-                        brightness = std::clamp(brightness + 0.1f, 0.f, 1.f);
-                    else if (sc == SDL_SCANCODE_W)
-                        volume = std::clamp(volume + 0.1f, 0.f, 1.f);
-                    else if (sc == SDL_SCANCODE_S)
-                        volume = std::clamp(volume - 0.1f, 0.f, 1.f);
-                    else if (sc == SDL_SCANCODE_A)
-                        currentSkin = (currentSkin + (int)skinFiles.size() - 1) % (int)skinFiles.size();
-                    else if (sc == SDL_SCANCODE_D)
-                        currentSkin = (currentSkin + 1) % (int)skinFiles.size();
-                    else if (sc == SDL_SCANCODE_ESCAPE || sc == SDL_SCANCODE_RETURN)
-                        state = GameState::MENU;
-
-                    // применяем громкость немедленно
-                    engine->setSoundVolume(volume);
-
+                    if (sc == SDL_SCANCODE_LEFT) brightness = std::clamp(brightness - 0.1f, 0.f, 1.f);
+                    else if (sc == SDL_SCANCODE_RIGHT) brightness = std::clamp(brightness + 0.1f, 0.f, 1.f);
+                    else if (sc == SDL_SCANCODE_A) currentSkin = (currentSkin + (int)skinFiles.size() - 1) % (int)skinFiles.size();
+                    else if (sc == SDL_SCANCODE_D) currentSkin = (currentSkin + 1) % (int)skinFiles.size();
+                    else if (sc == SDL_SCANCODE_ESCAPE || sc == SDL_SCANCODE_RETURN) state = GameState::MENU;
+                    break;
 
                 case GameState::GAME:
                     if (sc == SDL_SCANCODE_ESCAPE) state = GameState::MENU;
@@ -172,22 +158,16 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        // Рендер
+        if (state == GameState::EXIT) running = false;
+
         if (bgTexture) SDL_RenderCopy(renderer, bgTexture, nullptr, nullptr);
         else {
-            SDL_SetRenderDrawColor(renderer, 50, 150, 200, 255);
+            SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
             SDL_RenderClear(renderer);
         }
 
-        // --- Применяем яркость ---
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        Uint8 alpha = static_cast<Uint8>((1.0f - brightness) * 200);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
-        SDL_Rect overlayRect{ 0, 0, 800, 600 };
-        SDL_RenderFillRect(renderer, &overlayRect);
-
         if (state == GameState::MENU) {
-            int btnW = 250, btnH = 70, startY = 280;
+            int btnW = 250, btnH = 70, startY = 200;
             for (int i = 0; i < (int)menuItems.size(); i++) {
                 drawButton(renderer, font, menuItems[i],
                     275, startY + i * 100, btnW, btnH,
@@ -211,14 +191,6 @@ int main(int argc, char* argv[]) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
             SDL_RenderFillRect(renderer, &bar);
 
-            // Volume (громкость)
-            SDL_Texture* vol = renderText(renderer, font, "Volume:", { 255,255,255,255 }, r);
-            r.x = 200; r.y = 200; SDL_RenderCopy(renderer, vol, nullptr, &r); SDL_DestroyTexture(vol);
-
-            SDL_Rect volBar{ 400, 210, static_cast<int>(200 * volume), 20 };
-            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-            SDL_RenderFillRect(renderer, &volBar);
-
             SDL_Texture* skin = renderText(renderer, font, "Skin: " + skinNames[currentSkin], { 255,255,255,255 }, r);
             r.x = 200; r.y = 250; SDL_RenderCopy(renderer, skin, nullptr, &r); SDL_DestroyTexture(skin);
 
@@ -232,7 +204,7 @@ int main(int argc, char* argv[]) {
             }
         }
         else if (state == GameState::GAME) {
-            bool backToMenu = runGame(renderer, font, skinTextures[currentSkin], brightness);
+            bool backToMenu = runGame(renderer, font, skinTextures[currentSkin]);
             if (backToMenu) {
                 state = GameState::MENU;
             }
@@ -240,12 +212,7 @@ int main(int argc, char* argv[]) {
                 running = false;
             }
         }
-        // Наложение яркости (глобально)
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        Uint8 overlay = static_cast<Uint8>((1.0f - brightness) * 255);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, overlay);
-        SDL_Rect screenRect{ 0, 0, 800, 600 };
-        SDL_RenderFillRect(renderer, &screenRect);
+
         SDL_RenderPresent(renderer);
     }
 
